@@ -1,4 +1,5 @@
-# project-urlShortnerGroup
+project_4_URL_shortner
+Lithium
 Scalable URL Shortner Project Requirement
 Phase I
 Overview
