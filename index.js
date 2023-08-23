@@ -1,9 +1,11 @@
 const express = require('express')
+const {redisClient}=require('./src/controllers/redis')
 const app = express()
 const mongoose = require('mongoose')
-const route = require('./routes/route')
+require('dotenv').config({path:'.env'})
+const route = require('./src/routes/route')
 app.use(express.json())
-mongoose.connect('mongodb+srv://Iqra:Iqra3786@cluster0.tsgwccn.mongodb.net/group13Database',{
+mongoose.connect(process.env.MONGODB,{
     useNewUrlParser: true
 },mongoose.set('strictQuery', true))
 
@@ -11,7 +13,8 @@ mongoose.connect('mongodb+srv://Iqra:Iqra3786@cluster0.tsgwccn.mongodb.net/group
     .catch(err => console.log(err))
 
 app.use('/', route)
-app.listen((3000), function () {
-    console.log("running on port" ,3000)
+
+app.listen(process.env.PORT, function () {
+    console.log("running on port" ,process.env.PORT)
 })
 

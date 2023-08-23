@@ -3,14 +3,7 @@ const shortId = require('shortid')
 const ValidUrl=require("valid-url")
 const axios = require('axios')
 const redis=require('redis')
-
-//--------------------------------------------- Connect to the redis server-----------------------------------------------------------------//
-
-const redisClient = redis.createClient({
-  url : "redis://default:jg2awKC3DCj3NGelwKoPZFoQjseop0DK@redis-19465.c99.us-east-1-4.ec2.cloud.redislabs.com:19465"
-});
-
-redisClient.connect(console.log("Redis is connected"))
+const {redisClient}=require('./redis')
 
 //-------------------------------------------CreateUrl--------------------------------------------------------------------------------------//
 
@@ -77,25 +70,31 @@ const createUrl = async function(req,res){
 //---------------------------------------------getUrl-------------------------------------------------------------------------------------------//
 
 const getUrl = async function(req, res){
-    let urlCode = req.params.urlCode
+    try{
+        let urlCode = req.params.urlCode
 
-     /*--------------------get data from redis(cache) server----------------------*/
-
-    let cachedData = await redisClient.get(urlCode);
-     if (cachedData) {return res.status(302).redirect(cachedData)} 
-
-    //---------------------------Check urlCode is present in DB or not----------------------------------/
+        /*--------------------get data from redis(cache) server----------------------*/
    
-    let foundUrl = await urlModel.findOne({urlCode:urlCode})
-
-    if(!foundUrl)return res.status(404).send({status:false, message:"short url does not exit"})
-
-    /*--------------------set data to redis(cache) server----------------------*/
-    
-    await redisClient.set(urlCode, foundUrl.longUrl);
-    await redisClient.expire(urlCode,80); //set expire 60 seconds
-
-    return res.status(302).redirect(foundUrl.longUrl)
+       let cachedData = await redisClient.get(urlCode);
+        if (cachedData) {return res.status(302).redirect(cachedData)} 
+   
+       //---------------------------Check urlCode is present in DB or not----------------------------------/
+      
+       let foundUrl = await urlModel.findOne({urlCode:urlCode})
+   
+       if(!foundUrl)return res.status(404).send({status:false, message:"short url does not exit"})
+   
+       /*--------------------set data to redis(cache) server----------------------*/
+       
+       await redisClient.set(urlCode, foundUrl.longUrl);
+       await redisClient.expire(urlCode,80); //set expire 60 seconds
+   
+       return res.status(302).redirect(foundUrl.longUrl)
+    }
+    catch(error){
+        return res.status(500).send({status:false,message:error.message})
+    }
+   
 }
 
 module.exports.createUrl = createUrl
