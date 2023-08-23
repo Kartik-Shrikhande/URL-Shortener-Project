@@ -2,7 +2,6 @@ const urlModel = require('../models/urlModel')
 const shortId = require('shortid')
 const ValidUrl=require("valid-url")
 const axios = require('axios')
-const redis=require('redis')
 const {redisClient}=require('./redis')
 
 //-------------------------------------------CreateUrl--------------------------------------------------------------------------------------//
